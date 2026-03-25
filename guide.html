@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF 圧縮ツール 使い方ガイド</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #2d2d2d;
+      background: #f8f8f8;
+    }
+
+    /* ---- sidebar ---- */
+    nav {
+      position: fixed;
+      top: 0; left: 0;
+      width: 220px; height: 100vh;
+      background: #1e293b;
+      padding: 28px 0;
+      overflow-y: auto;
+    }
+    nav .logo {
+      color: #f1f5f9;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid #334155;
+    }
+    nav ul { list-style: none; padding: 12px 0; }
+    nav ul li a {
+      display: block;
+      padding: 8px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: color .15s, background .15s;
+    }
+    nav ul li a:hover, nav ul li a.active {
+      color: #f1f5f9;
+      background: #334155;
+    }
+    nav ul li.section-head a {
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      pointer-events: none;
+      padding-top: 18px;
+    }
+
+    /* ---- main ---- */
+    main {
+      margin-left: 220px;
+      padding: 48px 56px;
+      max-width: 900px;
+    }
+
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
+    h2 {
+      font-size: 20px; font-weight: 700;
+      margin: 48px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      color: #1e293b;
+    }
+    h3 { font-size: 16px; font-weight: 700; margin: 28px 0 10px; color: #334155; }
+    p  { margin-bottom: 12px; color: #475569; }
+
+    /* ---- hero ---- */
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 8px;
+    }
+    .hero h1 { color: #fff; font-size: 24px; margin-bottom: 6px; }
+    .hero p  { color: #bfdbfe; margin: 0; }
+
+    /* ---- callout ---- */
+    .callout {
+      display: flex; gap: 12px;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .callout.info    { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .callout.warn    { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .callout.success { background: #f0fdf4; border-left: 4px solid #22c55e; }
+    .callout .icon   { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+    .callout p { margin: 0; color: inherit; }
+
+    /* ---- steps ---- */
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 16px; margin: 16px 0; }
+    .step  {
+      display: flex; gap: 16px;
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 32px; height: 32px;
+      background: #3b82f6; color: #fff;
+      font-weight: 700; font-size: 15px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body h3 { margin: 0 0 6px; font-size: 15px; }
+    .step-body p  { margin: 0; font-size: 14px; }
+
+    /* ---- table ---- */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 16px 0; font-size: 14px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th {
+      background: #f1f5f9;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+      color: #475569;
+    }
+    td { padding: 10px 14px; border-top: 1px solid #e2e8f0; vertical-align: top; }
+    tr:hover td { background: #f8fafc; }
+
+    /* ---- code ---- */
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #1e40af;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 18px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 16px 0;
+    }
+    pre .c { color: #64748b; }   /* comment */
+    pre .k { color: #93c5fd; }   /* keyword / flag */
+    pre .s { color: #86efac; }   /* string / value */
+
+    /* ---- badge ---- */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.blue  { background: #dbeafe; color: #1d4ed8; }
+    .badge.green { background: #dcfce7; color: #15803d; }
+    .badge.amber { background: #fef3c7; color: #92400e; }
+
+    /* ---- ui diagram ---- */
+    .ui-diagram {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .ui-diagram .title-bar {
+      background: #1e293b; color: #94a3b8;
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+    .ui-diagram .body { padding: 16px 18px; }
+    .ui-diagram .toolbar {
+      display: flex; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .ui-diagram .btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #bfdbfe;
+    }
+    .ui-diagram .btn.ghost { background: transparent; border: none; color: #64748b; }
+    .ui-diagram .list-header {
+      display: grid;
+      grid-template-columns: 1fr 80px 120px;
+      padding: 6px 10px;
+      font-weight: 700;
+      color: #64748b;
+      font-size: 12px;
+    }
+    .ui-diagram .list-header span { text-align: right; }
+    .ui-diagram .list-header span:first-child { text-align: left; }
+    .ui-diagram .file-list {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .ui-diagram .file-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 120px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      font-size: 12px;
+    }
+    .ui-diagram .file-row:first-child { border-top: none; }
+    .ui-diagram .file-row span { text-align: right; }
+    .ui-diagram .file-row span:first-child { text-align: left; color: #1e293b; }
+    .ui-diagram .status-ok   { color: #16a34a; font-weight: 700; }
+    .ui-diagram .status-wait { color: #94a3b8; }
+    .ui-diagram .status-proc { color: #d97706; }
+    .ui-diagram .settings {
+      display: flex; gap: 16px; align-items: center;
+      margin-top: 12px; font-size: 12px; color: #475569;
+    }
+    .ui-diagram .field {
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 5px 10px; background: #fff;
+      font-size: 12px; color: #1e293b; min-width: 70px; text-align: right;
+    }
+    .ui-diagram .select {
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 5px 10px; background: #fff; font-size: 12px;
+    }
+    .ui-diagram .start-btn {
+      display: block; margin: 14px auto 4px;
+      padding: 10px 28px;
+      background: #3b82f6; color: #fff;
+      border-radius: 8px; font-weight: 700; font-size: 13px;
+      text-align: center; width: fit-content;
+    }
+
+    /* ---- quality table ---- */
+    .quality-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px; margin: 16px 0;
+    }
+    .quality-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .quality-card .label { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .quality-card .dpi   { color: #64748b; font-size: 13px; }
+    .quality-card .desc  { color: #475569; font-size: 13px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">📄 PDF 圧縮ツール</div>
+  <ul>
+    <li class="section-head"><a href="#">はじめに</a></li>
+    <li><a href="#overview">概要</a></li>
+    <li><a href="#requirements">必要なもの</a></li>
+    <li class="section-head"><a href="#">GUIの使い方</a></li>
+    <li><a href="#gui-add">ファイルの追加</a></li>
+    <li><a href="#gui-settings">設定</a></li>
+    <li><a href="#gui-run">圧縮の実行</a></li>
+    <li><a href="#gui-result">結果の確認</a></li>
+    <li class="section-head"><a href="#">CLIの使い方</a></li>
+    <li><a href="#cli-basic">基本的な使い方</a></li>
+    <li><a href="#cli-options">オプション一覧</a></li>
+    <li class="section-head"><a href="#">詳細</a></li>
+    <li><a href="#mechanism">圧縮の仕組み</a></li>
+    <li><a href="#ghostscript">Ghostscriptの導入</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- hero -->
+  <div class="hero">
+    <h1>PDF 圧縮ツール 使い方ガイド</h1>
+    <p>PDFを指定サイズ（デフォルト 1 MB）以下に圧縮するツールです。GUIとCLIの両方で動作します。</p>
+  </div>
+
+  <!-- ================ 概要 ================ -->
+  <h2 id="overview">概要</h2>
+  <p>このツールは、大きなPDFファイルをメールやアップロードで使いやすいサイズに圧縮します。<br>
+     Ghostscriptがインストールされていれば画像の解像度を下げて強力に圧縮し、なければpikepdfによる基本圧縮を行います。</p>
+
+  <div class="callout info">
+    <span class="icon">💡</span>
+    <p>画像が多いPDFを大幅に圧縮したい場合は <strong>Ghostscript</strong> のインストールを推奨します。</p>
+  </div>
+
+  <!-- ================ 必要なもの ================ -->
+  <h2 id="requirements">必要なもの</h2>
+  <table>
+    <tr><th>ソフトウェア</th><th>必須？</th><th>用途</th></tr>
+    <tr>
+      <td>Ghostscript</td>
+      <td><span class="badge amber">推奨</span></td>
+      <td>画像を再エンコードして強力に圧縮。なくても動作するが、大きいPDFの圧縮効果が限られる。</td>
+    </tr>
+    <tr>
+      <td>pikepdf</td>
+      <td><span class="badge blue">必須</span></td>
+      <td>Ghostscript非使用時のフォールバック圧縮。exeには同梱済み。</td>
+    </tr>
+  </table>
+
+  <!-- ================ GUIの使い方 ================ -->
+  <h2 id="gui-add">GUIの使い方 ― ファイルの追加</h2>
+
+  <div class="ui-diagram">
+    <div class="title-bar">PDF 圧縮ツール</div>
+    <div class="body">
+      <div class="toolbar">
+        <div class="btn">+ ファイルを追加</div>
+        <div class="btn">📁 フォルダを追加</div>
+        <div class="btn ghost">クリア</div>
+      </div>
+      <div class="list-header">
+        <span>ファイル名</span><span>サイズ</span><span>状態</span>
+      </div>
+      <div class="file-list">
+        <div class="file-row"><span>report.pdf</span><span>3.2 MB</span><span class="status-wait">待機</span></div>
+        <div class="file-row"><span>manual.pdf</span><span>8.1 MB</span><span class="status-wait">待機</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-body">
+        <h3>「ファイルを追加」でPDFを選ぶ</h3>
+        <p>ボタンをクリックするとファイル選択ダイアログが開きます。複数のPDFを一度に選択できます。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <h3>「フォルダを追加」でまとめて追加</h3>
+        <p>フォルダを選択すると、その中にあるすべてのPDF（サブフォルダ含む）をリストに追加します。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <h3>リストの確認・整理</h3>
+        <p>ファイル名・サイズが一覧表示されます。不要なファイルをまとめて削除したい場合は「クリア」で全件削除できます。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 設定 ================ -->
+  <h2 id="gui-settings">GUIの使い方 ― 設定</h2>
+
+  <div class="ui-diagram">
+    <div class="body">
+      <div class="settings">
+        <span>目標サイズ:</span>
+        <div class="field">1.0 MB</div>
+        <span>出力先:</span>
+        <div class="select">同じフォルダ ▼</div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>設定項目</th><th>説明</th></tr>
+    <tr>
+      <td><strong>目標サイズ</strong></td>
+      <td>圧縮後の目標ファイルサイズ（MB）。デフォルトは <code>1.0</code> MB。<br>
+          達成できない場合は可能な限り小さくして保存します。</td>
+    </tr>
+    <tr>
+      <td><strong>出力先 — 同じフォルダ</strong></td>
+      <td>元のPDFと同じ場所に <code>ファイル名_compressed.pdf</code> として保存します。</td>
+    </tr>
+    <tr>
+      <td><strong>出力先 — 別のフォルダを指定</strong></td>
+      <td>保存先フォルダを選択できます。複数ファイルをまとめて別フォルダに出力したい場合に便利です。</td>
+    </tr>
+  </table>
+
+  <!-- ================ 実行 ================ -->
+  <h2 id="gui-run">GUIの使い方 ― 圧縮の実行</h2>
+
+  <div class="ui-diagram">
+    <div class="body">
+      <div class="start-btn">▶ 圧縮を開始</div>
+    </div>
+  </div>
+
+  <p>「圧縮を開始」ボタンをクリックすると、リスト内の「待機」状態のファイルを順番に処理します。<br>
+     処理中はプログレスバーと「<em>n / 全件 完了</em>」のカウントが表示されます。</p>
+
+  <div class="callout warn">
+    <span class="icon">⚠️</span>
+    <p>すでに圧縮済み（✓）のファイルは再処理されません。再度実行したい場合は「クリア」してから追加し直してください。</p>
+  </div>
+
+  <!-- ================ 結果 ================ -->
+  <h2 id="gui-result">GUIの使い方 ― 結果の確認</h2>
+
+  <div class="ui-diagram">
+    <div class="body">
+      <div class="list-header">
+        <span>ファイル名</span><span>サイズ</span><span>状態</span>
+      </div>
+      <div class="file-list">
+        <div class="file-row"><span>report.pdf</span><span>3.2 MB</span><span class="status-ok">✓ 0.8 MB</span></div>
+        <div class="file-row"><span>manual.pdf</span><span>8.1 MB</span><span class="status-ok">✓ 0.9 MB</span></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>状態表示</th><th>意味</th></tr>
+    <tr><td><span style="color:#16a34a;font-weight:700">✓ 0.8 MB</span></td><td>目標サイズ以下に圧縮成功。数値は圧縮後のサイズ。</td></tr>
+    <tr><td><span style="color:#d97706;font-weight:700">処理中...</span></td><td>現在圧縮処理中。</td></tr>
+    <tr><td><span style="color:#dc2626;font-weight:700">✗ 目標未達</span></td><td>圧縮できたが目標サイズを超えている。Ghostscriptの導入を検討してください。</td></tr>
+    <tr><td><span style="color:#94a3b8">待機</span></td><td>圧縮前の状態。</td></tr>
+  </table>
+
+  <!-- ================ CLI基本 ================ -->
+  <h2 id="cli-basic">CLIの使い方 ― 基本</h2>
+  <p>引数を付けて実行するとCLIモードで動作します。</p>
+
+  <pre><span class="c"># 単一ファイルを圧縮 → report_compressed.pdf が生成される</span>
+compress_pdf <span class="s">report.pdf</span>
+
+<span class="c"># 複数ファイルを一度に指定</span>
+compress_pdf <span class="s">a.pdf b.pdf c.pdf</span>
+
+<span class="c"># ワイルドカードで一括処理</span>
+compress_pdf <span class="s">*.pdf</span>
+
+<span class="c"># フォルダ内のPDFをすべて処理（サブフォルダ含む）</span>
+compress_pdf <span class="s">./docs/</span>
+
+<span class="c"># 出力ファイル名を指定</span>
+compress_pdf <span class="s">input.pdf</span> <span class="k">-o</span> <span class="s">output.pdf</span>
+
+<span class="c"># 複数ファイルを別フォルダにまとめて出力</span>
+compress_pdf <span class="s">*.pdf</span> <span class="k">-o</span> <span class="s">./compressed/</span>
+
+<span class="c"># 目標サイズを 2 MB に変更</span>
+compress_pdf <span class="s">input.pdf</span> <span class="k">--target</span> <span class="s">2.0</span></pre>
+
+  <!-- ================ CLIオプション ================ -->
+  <h2 id="cli-options">CLIの使い方 ― オプション一覧</h2>
+  <table>
+    <tr><th>オプション</th><th>デフォルト</th><th>説明</th></tr>
+    <tr><td><code>-o, --output</code></td><td>—</td><td>出力先。単一ファイルの場合はファイルパス、複数の場合はディレクトリパスを指定。</td></tr>
+    <tr><td><code>--target MB</code></td><td><code>1.0</code></td><td>目標ファイルサイズ（MB）。</td></tr>
+    <tr><td><code>--suffix TEXT</code></td><td><code>_compressed</code></td><td>出力ファイルのサフィックス。例: <code>--suffix _small</code> → <code>input_small.pdf</code></td></tr>
+  </table>
+
+  <!-- ================ 仕組み ================ -->
+  <h2 id="mechanism">圧縮の仕組み</h2>
+
+  <div class="quality-grid">
+    <div class="quality-card">
+      <div class="label">📗 ebook <span class="badge blue">最初に試行</span></div>
+      <div class="dpi">150 dpi</div>
+      <div class="desc">画像を150dpiに縮小。多くのPDFで目標サイズを達成できます。</div>
+    </div>
+    <div class="quality-card">
+      <div class="label">📺 screen <span class="badge amber">次に試行</span></div>
+      <div class="dpi">72 dpi</div>
+      <div class="desc">ebook で目標未達の場合に使用。最大限に圧縮しますが画質は低下します。</div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <span class="icon">✅</span>
+    <p><strong>Ghostscriptあり:</strong> ebook → screen の順に試し、目標サイズ以下になった時点で採用します。</p>
+  </div>
+  <div class="callout warn">
+    <span class="icon">⚠️</span>
+    <p><strong>Ghostscriptなし:</strong> pikepdfによるストリーム再圧縮のみ。画像は再エンコードされないため、効果は限定的です。</p>
+  </div>
+
+  <!-- ================ Ghostscript ================ -->
+  <h2 id="ghostscript">Ghostscriptの導入</h2>
+  <p>画像の多いPDFを効果的に圧縮するには Ghostscript のインストールを強く推奨します。</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-body">
+        <h3>Ghostscript をダウンロード</h3>
+        <p>公式サイト <strong>ghostscript.com/releases/gsdnld.html</strong> からWindows版インストーラーをダウンロードします（64bit版: <code>gs...w64.exe</code>）。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <h3>インストール</h3>
+        <p>ダウンロードしたインストーラーを実行します。インストール先はデフォルト（<code>C:\Program Files\gs\</code>）のままで問題ありません。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-body">
+        <h3>動作確認</h3>
+        <p>ツールを再起動すると、ウィンドウ右上の表示が <strong>「Ghostscript: gswin64c」</strong> に変わります。これで高圧縮が有効になります。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="icon">💡</span>
+    <p>PATHへの手動追加は不要です。ツールが自動的に <code>C:\Program Files\gs\</code> 以下を探します。</p>
+  </div>
+
+</main>
+
+<script>
+  // アクティブなナビリンクをハイライト
+  const links = document.querySelectorAll('nav ul li:not(.section-head) a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = entry.target.id;
+        const a = document.querySelector(`nav a[href="#${id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('h2[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
