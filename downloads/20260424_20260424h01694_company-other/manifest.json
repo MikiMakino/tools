@@ -1,0 +1,83 @@
+{
+  "issue_date": "20260424",
+  "issue_prefix": "20260424h01694",
+  "issue_label": "令和8年4月24日（本紙　第1694号）",
+  "section_name": "会社その他",
+  "toc_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940000f.html",
+  "section_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940026f.html",
+  "start_page": 26,
+  "end_page": 32,
+  "total_pages": 32,
+  "downloaded_pages": [
+    {
+      "page_number": 26,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940026f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940026.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940026.pdf",
+      "wrapper_file": "wrappers\\20260424h016940026f.html",
+      "inner_file": "inner\\20260424h016940026.html",
+      "pdf_file": "pdf\\20260424h016940026.pdf",
+      "text_file": "text\\20260424h016940026.txt"
+    },
+    {
+      "page_number": 27,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940027f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940027.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940027.pdf",
+      "wrapper_file": "wrappers\\20260424h016940027f.html",
+      "inner_file": "inner\\20260424h016940027.html",
+      "pdf_file": "pdf\\20260424h016940027.pdf",
+      "text_file": "text\\20260424h016940027.txt"
+    },
+    {
+      "page_number": 28,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940028f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940028.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940028.pdf",
+      "wrapper_file": "wrappers\\20260424h016940028f.html",
+      "inner_file": "inner\\20260424h016940028.html",
+      "pdf_file": "pdf\\20260424h016940028.pdf",
+      "text_file": "text\\20260424h016940028.txt"
+    },
+    {
+      "page_number": 29,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940029f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940029.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940029.pdf",
+      "wrapper_file": "wrappers\\20260424h016940029f.html",
+      "inner_file": "inner\\20260424h016940029.html",
+      "pdf_file": "pdf\\20260424h016940029.pdf",
+      "text_file": "text\\20260424h016940029.txt"
+    },
+    {
+      "page_number": 30,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940030f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940030.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940030.pdf",
+      "wrapper_file": "wrappers\\20260424h016940030f.html",
+      "inner_file": "inner\\20260424h016940030.html",
+      "pdf_file": "pdf\\20260424h016940030.pdf",
+      "text_file": "text\\20260424h016940030.txt"
+    },
+    {
+      "page_number": 31,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940031f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940031.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940031.pdf",
+      "wrapper_file": "wrappers\\20260424h016940031f.html",
+      "inner_file": "inner\\20260424h016940031.html",
+      "pdf_file": "pdf\\20260424h016940031.pdf",
+      "text_file": "text\\20260424h016940031.txt"
+    },
+    {
+      "page_number": 32,
+      "wrapper_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940032f.html",
+      "inner_url": "https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940032.html",
+      "pdf_url": "https://www.kanpo.go.jp/20260424/20260424h01694/pdf/20260424h016940032.pdf",
+      "wrapper_file": "wrappers\\20260424h016940032f.html",
+      "inner_file": "inner\\20260424h016940032.html",
+      "pdf_file": "pdf\\20260424h016940032.pdf",
+      "text_file": "text\\20260424h016940032.txt"
+    }
+  ]
+}
