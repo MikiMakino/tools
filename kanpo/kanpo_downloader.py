@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
+from pdfminer.high_level import extract_text as pdf_extract_text
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page, Playwright, sync_playwright
 
@@ -40,6 +41,7 @@ class PageDownload:
     wrapper_file: str
     inner_file: str
     pdf_file: str
+    text_file: str
 
 
 @dataclass
@@ -173,6 +175,49 @@ def save_bytes(path: Path, content: bytes) -> None:
     path.write_bytes(content)
 
 
+# 数字が抜けた日付ヘッダー行（例: 令和  年  月  日）と号数行（第  号）
+# PUA文字（-）がフォント固有の数字として挿入されているため範囲に含める
+# 単独の「官」「報」もヘッダー残鼸（本文では必ず「官報」と１行で出現する）
+_BROKEN_HEADER_RE = re.compile(r"令和[\s-]+年|^第[\s-]+号$|^[官報]$")
+# URLフラグメント行：半角英数・記号のみで構成され "://" を含まない行
+_URL_FRAGMENT_RE = re.compile(r"^[a-zA-Z0-9.\-_~%&?=+:/]+$")
+_PUA_ONLY_RE = re.compile(r"^[-\s]+$")  # フォント固有の数字コードのみの行
+
+
+def _clean_text(text: str) -> str:
+    lines = text.splitlines()
+    cleaned: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if _BROKEN_HEADER_RE.search(stripped):
+            continue
+        if stripped and _PUA_ONLY_RE.match(stripped):
+            continue
+        if stripped and _URL_FRAGMENT_RE.match(stripped) and "://" not in stripped:
+            continue
+        cleaned.append(line)
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(cleaned)).strip()
+
+
+def extract_text_from_pdf(pdf_path: Path) -> str:
+    raw = pdf_extract_text(str(pdf_path))
+    # 縦書きPDFは1文字1行になるため、連続する1文字行を結合して読みやすくする
+    lines = raw.splitlines()
+    result: list[str] = []
+    buf: list[str] = []
+    for line in lines:
+        if len(line) == 1:
+            buf.append(line)
+        else:
+            if buf:
+                result.append("".join(buf))
+                buf = []
+            result.append(line)
+    if buf:
+        result.append("".join(buf))
+    return _clean_text("\n".join(result))
+
+
 def download_section(
     playwright: Playwright,
     section_url: Optional[str],
@@ -205,6 +250,7 @@ def download_section(
         wrappers_dir = run_dir / "wrappers"
         inner_dir = run_dir / "inner"
         pdf_dir = run_dir / "pdf"
+        text_dir = run_dir / "text"
 
         downloads: list[PageDownload] = []
         wrapper_prefix = str(metadata["wrapper_prefix"])
@@ -246,6 +292,9 @@ def download_section(
             pdf_file = pdf_dir / Path(urlparse(pdf_url).path).name
             save_bytes(pdf_file, pdf_response.body())
 
+            text_file = text_dir / pdf_file.with_suffix(".txt").name
+            save_text(text_file, extract_text_from_pdf(pdf_file))
+
             downloads.append(
                 PageDownload(
                     page_number=page_number,
@@ -255,6 +304,7 @@ def download_section(
                     wrapper_file=str(wrapper_file.relative_to(run_dir)),
                     inner_file=str(inner_file.relative_to(run_dir)),
                     pdf_file=str(pdf_file.relative_to(run_dir)),
+                    text_file=str(text_file.relative_to(run_dir)),
                 )
             )
 

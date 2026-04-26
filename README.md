@@ -1,3 +1,69 @@
+# tools
+
+このリポジトリには複数のツールが含まれています。各ツールは独自の仮想環境（`.venv`）を持ち、依存関係が分離されています。
+
+---
+
+# kanpo
+
+官報サイトの「会社その他」セクションをダウンロードし、テキスト抽出するツールです。
+取得したテキストは SharePoint / Copilot Studio / Teams での活用を想定しています。
+
+## セットアップ（初回のみ）
+
+```powershell
+cd C:\Users\Owner\tools
+python -m venv kanpo\.venv
+kanpo\.venv\Scripts\pip install -r kanpo\requirements.txt
+kanpo\.venv\Scripts\playwright install chromium
+```
+
+## 実行方法
+
+```powershell
+# 最新号を全ページ取得
+kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py
+
+# 1ページだけ試す
+kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py --max-pages 1
+
+# OneDrive フォルダへ保存（Power Automate 連携用）
+kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py --out-dir "C:\Users\Owner\OneDrive\kanpo-downloads"
+```
+
+## 出力ファイル構成
+
+```
+downloads/
+└── 20260424_20260424h01694_company-other/
+    ├── manifest.json       # 索引（号・ページ・ファイルパス・URL）
+    ├── toc.html            # 目次HTML
+    ├── text/               # 抽出テキスト（Copilot Studio / 検索用）
+    │   ├── ...0026.txt
+    │   └── ...0027.txt
+    ├── pdf/                # PDFファイル
+    ├── inner/              # ページ内HTML
+    └── wrappers/           # ラッパーHTML
+```
+
+## SharePoint / Teams 連携フロー
+
+```
+kanpo_downloader.py 実行
+    ↓ text/*.txt 生成
+OneDrive 同期フォルダに保存（--out-dir で指定）
+    ↓ 自動同期
+Power Automate「OneDriveにファイルが作成されたとき」トリガー
+    ↓
+SharePoint ドキュメントライブラリにコピー
+    ↓
+Copilot Studio がナレッジソースとして読む
+    ↓
+Teams チャット
+```
+
+---
+
 # compress_pdf
 
 PDFファイルを指定サイズ（デフォルト: 1MB）以下に圧縮するツールです。

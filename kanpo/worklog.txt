@@ -1,0 +1,127 @@
+官報取得ツール 作業メモ
+========================
+
+更新日:
+- 2026-04-26
+
+目的:
+- 官報サイトの「会社その他」欄を毎日取得し、後続で SharePoint / Teams 連携に使える形へつなぐ準備
+
+ここまでに実施したこと:
+1. 官報サイトの構造を確認
+   - トップページ: https://www.kanpo.go.jp/index.html
+   - 本紙の目次ページから「会社その他」リンクを特定できることを確認
+   - 対象ページは wrapper HTML -> inner HTML -> PDF の構造であることを確認
+
+2. Python + Playwright 方針で実装
+   - Premium ライセンスや AI Builder に依存しない構成を前提に整理
+   - 定期処理は Python、対話利用は将来 Copilot Studio / Teams で活用する前提にした
+
+3. ダウンロードスクリプトを作成
+   - ファイル:
+     C:\Users\Owner\tools\kanpo\kanpo_downloader.py
+   - 機能:
+     - 官報トップページから最新の本紙目次を探索
+     - 目次から「会社その他」リンクを取得
+     - 指定セクション開始ページから対象ページを巡回
+     - 各ページについて以下を保存
+       - wrapper HTML
+       - inner HTML
+       - PDF
+       - manifest.json
+   - URL直指定でも実行可能
+
+4. 依存関係を更新
+   - ファイル:
+     C:\Users\Owner\tools\requirements.txt
+   - 追加:
+     playwright
+
+5. 動作確認
+   - 指定URLで 1 ページ取得できることを確認
+   - 最新号の自動検出でも 1 ページ取得できることを確認
+   - 出力先:
+     C:\Users\Owner\tools\downloads\
+
+6. フォルダ整理
+   - もともと repo 直下にあった kanpo_downloader.py を kanpo フォルダへ移動
+   - 現在の配置:
+     C:\Users\Owner\tools\kanpo\kanpo_downloader.py
+
+7. GitHub へ push
+   - リポジトリ:
+     https://github.com/MikiMakino/tools
+   - ブランチ:
+     main
+   - 反映済みコミット:
+     - 39af8d0 Add Kanpo downloader script
+     - e513614 Move kanpo downloader into kanpo folder
+
+実行例:
+- C:\Users\Owner\tools で実行
+
+  python .\kanpo\kanpo_downloader.py
+
+- URLを直接指定して実行
+
+  python .\kanpo\kanpo_downloader.py --section-url https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940026f.html
+
+- 1ページだけ試す
+
+  python .\kanpo\kanpo_downloader.py --max-pages 1
+
+8. 仮想環境をツールごとに分離
+   - repo 直下の共有 env/ ではなく kanpo/.venv を作成
+   - 理由: ツールが増えたときの依存関係の競合を防ぐ
+   - 依存ファイル:
+     C:\Users\Owner\tools\kanpo\requirements.txt
+       playwright
+       pdfminer.six
+
+9. PDF からテキスト抽出を実装
+   - pdfminer.six を使用
+   - 縦書きPDFで1文字1行になる問題を後処理で結合して対応
+   - ダウンロード時に text/*.txt を自動生成するよう kanpo_downloader.py を修正
+   - manifest.json に text_file フィールドを追加（各ページのテキストファイルパスを記録）
+
+10. SharePoint / Teams 連携方針を確定
+    - 形式: txt ファイル（JSON/CSV化は不要）
+    - SharePoint の置き場: ドキュメントライブラリ（リストではない）
+    - 理由: Copilot Studio のナレッジソースとして全文検索させるため
+    - 連携フロー:
+        kanpo_downloader.py 実行
+            ↓ text/*.txt 生成
+        OneDrive 同期フォルダに保存（--out-dir で指定）
+            ↓ 自動同期
+        Power Automate クラウドフロー
+        「OneDriveにファイルが作成されたとき」トリガー
+            ↓
+        SharePoint ドキュメントライブラリにコピー
+            ↓
+        Copilot Studio がナレッジソースとして読む
+            ↓
+        Teams チャット
+
+実行例:
+- kanpo ディレクトリ内の仮想環境で実行（tools/ 直下から）
+
+  kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py
+
+- URLを直接指定して実行
+
+  kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py --section-url https://www.kanpo.go.jp/20260424/20260424h01694/20260424h016940026f.html
+
+- 1ページだけ試す
+
+  kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py --max-pages 1
+
+- OneDrive フォルダへ保存（Power Automate 連携用）
+
+  kanpo\.venv\Scripts\python kanpo\kanpo_downloader.py --out-dir "C:\Users\Owner\OneDrive\kanpo-downloads"
+
+補足:
+- 仮想環境セットアップ（初回のみ）
+
+  python -m venv kanpo\.venv
+  kanpo\.venv\Scripts\pip install -r kanpo\requirements.txt
+  kanpo\.venv\Scripts\playwright install chromium
