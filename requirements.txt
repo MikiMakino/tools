@@ -1,3 +1,4 @@
 pikepdf
 flet
 pyinstaller
+playwright
