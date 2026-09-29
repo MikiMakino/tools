@@ -1,0 +1,8 @@
+name: kanpo-build
+dependencies:
+  - python=3.12
+  - tk
+  - pypdf
+  - cryptography
+  - openpyxl
+  - pyinstaller

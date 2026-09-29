@@ -1,0 +1,28 @@
+# Generated Python/build artifacts
+__pycache__/
+*.py[cod]
+build_runs/
+build/
+dist/
+*.spec
+*.exe
+*.zip
+
+# Local documents, databases, and runtime records
+pdf/
+backups/
+download_staging/
+*.pdf
+*.sqlite*
+*.db
+*.log
+environment_check.json
+
+# Real ledgers and exported results never belong in the source repository.
+*.csv
+!sample/ledger.csv
+*.xlsx
+*.xls
+*.tsv
+.env
+.env.*
